@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+
+<html>
+	<head>
+		<title>circles</title>
+
+		<style>
+			body {
+				margin: 0;
+				overflow: hidden;
+			}
+		</style>
+	</head>
+
+	<body>
+		<canvas></canvas>
+
+		<script>
+			const canvas = window.document.querySelector("canvas");
+			[canvas.width, canvas.height] = [window.screen.width, window.screen.height];
+			const pen = canvas.getContext("2d");
+
+			class Vector {
+				x;
+				y;
+
+				constructor(x, y) {
+					this.x = x;
+					this.y = y;
+				}
+			};
+
+			class Piece {
+				position;
+				radius;
+				offset;
+				valid;
+				velocity;
+
+				constructor(position, radius, offset = new Vector(0, 0), valid = true) {
+					this.position = { ...position };
+					this.radius = radius;
+					this.offset = { ...offset };
+					this.valid = valid;
+				}
+			};
+
+			const pieces = [
+				new Piece(new Vector(canvas.width / 3, canvas.height / 3), 50),
+				new Piece(new Vector(canvas.width / 3 + 100, canvas.height / 3 + 100), 30),
+				new Piece(new Vector(canvas.width / 3 + 50, canvas.height / 3 - 50), 20)
+			];
+
+			const animationFrame = () => {
+				pen.fillStyle = "#000000";
+				pen.fillRect(0, 0, window.screen.width, window.screen.height);
+				for (const piece of pieces) {
+					pen.fillStyle = piece.valid ? "#FFFFFF" : "#FF0000";
+					pen.beginPath();
+					pen.arc(piece.position.x, piece.position.y, piece.radius, 0, Math.PI * 2);
+					pen.fill();
+				}
+				window.requestAnimationFrame(animationFrame);
+			};
+			window.requestAnimationFrame(animationFrame);
+
+			const updateValid = () => {
+				for (const piece of pieces) {
+					piece.valid = true;
+					for (const other of pieces) {
+						if ((piece !== other) && (Math.hypot(piece.position.x - other.position.x, piece.position.y - other.position.y) <= (piece.radius + other.radius))) {
+							piece.valid = false;
+							other.valid = false;
+						}
+					}
+				}
+			};
+
+			let grabbed;
+			window.addEventListener("mousedown", (event) => {
+				for (const piece of pieces) {
+					if (Math.hypot(event.clientX - piece.position.x, event.clientY - piece.position.y) <= piece.radius) {
+						grabbed = piece;
+						grabbed.offset = new Vector(event.clientX - piece.position.x, event.clientY - piece.position.y);
+						break;
+					}
+				}
+			});
+			window.addEventListener("mousemove", (event) => {
+				if (grabbed) {
+					[grabbed.position.x, grabbed.position.y] = [event.clientX - grabbed.offset.x, event.clientY - grabbed.offset.y];
+					updateValid();
+				}
+			});
+			window.addEventListener("mouseup", () => {
+				grabbed = null;
+			});
+			window.addEventListener("keydown", ({ key }) => {
+				if (key === " ") {
+					pieces.push(new Piece(new Vector(Math.random() * canvas.width, Math.random() * canvas.height), 20 + Math.random() * 100));
+					updateValid();
+				}
+			});
+		</script>
+	</body>
+</html>

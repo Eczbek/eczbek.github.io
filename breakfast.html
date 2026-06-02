@@ -1,0 +1,62 @@
+<h1><big><big><big><span></span></big></big></big></h1>
+<script>
+	function crispiness() {
+		switch (Math.floor(Math.random() * 2)) {
+		case 0:
+			return "really";
+		case 1:
+			return "really " + crispiness();
+		}
+	}
+
+	function cooked() {
+		switch (Math.floor(Math.random() * 3)) {
+		case 0:
+			return "scrambled";
+		case 1:
+			return "poached";
+		case 2:
+			return "fried";
+		}
+	}
+
+	function protein() {
+		switch (Math.floor(Math.random() * 2)) {
+		case 0:
+			return crispiness() + " crispy bacon";
+		case 1:
+			return "sausage";
+		case 2:
+			return cooked() + " eggs";
+		}
+	}
+
+	function bread() {
+		switch (Math.floor(Math.random() * 3)) {
+		case 0:
+			return "toast";
+		case 1:
+			return "biscuits";
+		case 2:
+			return "English muffin";
+		}
+	}
+
+	function breakfast() {
+		switch (Math.floor(Math.random() * 3)) {
+		case 0:
+			return protein() + " with " + breakfast() + " on the side";
+		case 1:
+			return protein();
+		case 2:
+			return bread();
+		}
+	}
+
+	let text;
+	do {
+		text = breakfast();
+	} while (text.split(' ').length < 10);
+
+	document.querySelector('span').textContent = text;
+</script>
